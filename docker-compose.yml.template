@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: always
+    ports:
+      - 8314:8314
+      - 8414:8414
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./${SERVER_IP}-self-signed.crt:/etc/nginx/cert.crt
+      - ./${SERVER_IP}-self-signed.key:/etc/nginx/cert.key
+    networks:
+      - internal
+      - external
+
+  shimmie:
+    build: ../shimmie2/
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - /data1/shimmie2-data:/app/data
+    networks:
+      - internal
+
+  samba:
+    image: ghcr.io/servercontainers/samba
+    restart: always
+    # note that this network_mode makes it super easy (especially for zeroconf) but is not as safe as exposing ports directly
+    # more about that here: https://book.hacktricks.xyz/linux-hardening/privilege-escalation/docker-security/docker-breakout-privilege-escalation#hostnetwork
+    network_mode: host
+    environment:
+      MODEL: TimeCapsule
+      AVAHI_NAME: StorageServer
+
+      SAMBA_CONF_LOG_LEVEL: 3
+
+      # uncomment to disable optional services
+      #WSDD2_DISABLE: 1
+      AVAHI_DISABLE: 1
+      NETBIOS_DISABLE: 1
+
+      ACCOUNT_${SMB_USER}: "${SMB_PASSWORD}"
+      UID_${SMB_USER}: 1001
+
+      SAMBA_VOLUME_CONFIG_data1: "[data1]; path=/shares/data1; valid users = ${SMB_USER}; guest ok = no; read only = no; browseable = yes;"
+    volumes:
+      - /data1:/shares/data1
+  
+  sarcophilus:
+    build: ../sarcophilus/
+    network_mode: host
+    privileged: true
+    devices:
+      - /dev/snd:/dev/snd
+    volumes:
+      - ./bluetooth:/var/lib/bluetooth
+    environment:
+      SINK_DEVICE: "${SINK_DEVICE}"
+
+networks:
+  internal:
+    internal: true
+  external:

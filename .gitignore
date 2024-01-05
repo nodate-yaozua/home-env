@@ -1,0 +1,7 @@
+/bluetooth/
+/*-self-signed.crt
+/*-self-signed.csr
+/*-self-signed.key
+/*-self-signed.txt
+/docker-compose.yml
+/setup.in
