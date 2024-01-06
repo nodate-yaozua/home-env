@@ -6,7 +6,6 @@ services:
     restart: always
     ports:
       - 8314:8314
-      - 8414:8414
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./${SERVER_IP}-self-signed.crt:/etc/nginx/cert.crt
@@ -49,16 +48,19 @@ services:
     volumes:
       - /data1:/shares/data1
   
-  sarcophilus:
-    build: ../sarcophilus/
+  dasyurus:
+    build: ../dasyurus/
+    # for ease. use with caution!
     network_mode: host
     privileged: true
     devices:
       - /dev/snd:/dev/snd
     volumes:
+      - /data1/dasyurus-data:/app/data
       - ./bluetooth:/var/lib/bluetooth
     environment:
       SINK_DEVICE: "${SINK_DEVICE}"
+      SOURCE_DEVICE: "${SOURCE_DEVICE}"
 
 networks:
   internal:

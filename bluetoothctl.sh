@@ -1,1 +1,1 @@
-sudo docker compose exec sarcophilus bluetoothctl
+sudo docker compose exec dasyurus bluetoothctl
