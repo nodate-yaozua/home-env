@@ -2,8 +2,8 @@
 
 ```
 * /data1
-* ../sarcophilus
 * ../shimmie2
+* ../dasyurus
 ```
 
 # Setup
